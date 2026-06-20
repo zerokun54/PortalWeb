@@ -91,6 +91,7 @@ wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
 wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
 wwwroot\manifest.webmanifest
 wwwroot\sample-data\weather.json
+wwwroot\index.html
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\css\app.css
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\data\1_zenki\my_schedule.csv
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\data\1_zenki\rooms\演習室1.csv
@@ -179,3 +180,4 @@ C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\lib\bootstrap\dist\j
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\manifest.webmanifest
 C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\sample-data\weather.json
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\wwwroot\index.html

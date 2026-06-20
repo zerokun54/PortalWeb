@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ] # mainブランチにプッシュされたら自動起動
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x' # あなたの.NETのバージョンに合わせて自動ビルドします
+
+    - name: Publish Blazor App
+      run: dotnet publish -c Release --output release
+
+    - name: Fix base href for GitHub Pages
+      run: |
+        sed -i 's|<base href="/" />|<base href="/PortalWeb/" />|g' release/wwwroot/index.html
+
+    - name: Copy index.html to 404.html
+      run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+    - name: Add .nojekyll
+      run: touch release/wwwroot/.nojekyll
+
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: release/wwwroot # ビルドされた「本物の成果物」だけを別ブランチに自動送信
+        branch: gh-pages # 自動公開用の専用ブランチを自動作成してくれます
