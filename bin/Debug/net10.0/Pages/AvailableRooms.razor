@@ -1,0 +1,145 @@
+﻿@page "/available-rooms"
+@inject HttpClient Http
+
+<div class="container p-3" style="color: white; background-color: rgba(0,0,0,0.5); border-radius: 8px;">
+    <h3 class="mb-3">🚪 空き教室検索</h3>
+
+    <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3">
+            <label class="form-label fw-bold small">曜日</label>
+            <select class="form-select" value="@selectedDay" @onchange="OnDayChanged">
+                <option value="月">月曜日</option>
+                <option value="火">火曜日</option>
+                <option value="水">水曜日</option>
+                <option value="木">木曜日</option>
+                <option value="金">金曜日</option>
+            </select>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <label class="form-label fw-bold small">時限</label>
+            <select class="form-select" value="@selectedPeriod" @onchange="OnPeriodChanged">
+                <option value="1">1限の時間帯</option>
+                <option value="2">2限の時間帯</option>
+                <option value="3">3限の時間帯</option>
+                <option value="4">4限の時間帯</option>
+                <option value="5">5限の時間帯</option>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100 py-2" @onclick="ResetToCurrentTime">
+                🕒 現在の時刻に合わせる
+            </button>
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary text-white">
+        <div class="card-header border-secondary bg-secondary text-dark fw-bold">
+            📍 @(selectedDay)曜日 @(selectedPeriod)限 の空き教室一覧
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center my-3">
+                    <div class="spinner-border text-light" role="status"></div>
+                    <div class="mt-2 small text-muted">空き教室を計算中...</div>
+                </div>
+            }
+            else if (availableRooms == null || !availableRooms.Any())
+            {
+                <p class="text-muted text-center my-3">該当する時間帯に空いている教室はありません。</p>
+            }
+            else
+            {
+                <div class="row row-cols-2 row-cols-md-4 g-2">
+                    @foreach (var room in availableRooms)
+                    {
+                        <div class="col">
+                            <div class="p-2 bg-gradient text-center border rounded border-secondary" style="background-color: rgba(255,255,255,0.1); font-size: 1.1rem;">
+                                🚪 @room
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="mt-3 text-end text-muted small">
+                    該当件数: @availableRooms.Count 部屋
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedDay = "月";
+    private int selectedPeriod = 1;
+    private List<string> availableRooms = new List<string>();
+    private bool isLoading = false;
+
+    // 表示中の学期（必要に応じて学期切り替えUIを足すことも可能です）
+    private string currentSemester = "1_zenki";
+
+    protected override void OnInitialized()
+    {
+        // 起動時に現在の時刻から自動判定
+        ResetToCurrentTime();
+    }
+
+    private async Task LoadAvailableRoomsAsync()
+    {
+        isLoading = true;
+        StateHasChanged(); // ローディング表示を開始
+
+        try
+        {
+            // Web対応版のCsvLoaderインスタンスを作成
+            var loader = new PortalWeb.CsvLoader(Http);
+
+            // 📁 wwwroot/data/... から実際のCSVを解析して空き教室を取得！
+            availableRooms = await loader.LoadAvailableRoomsFromCsvAsync(currentSemester, selectedDay, selectedPeriod);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"空き教室取得エラー: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged(); // 画面を更新
+        }
+    }
+
+    private async Task OnDayChanged(ChangeEventArgs e)
+    {
+        selectedDay = e.Value?.ToString() ?? "月";
+        await LoadAvailableRoomsAsync();
+    }
+
+    private async Task OnPeriodChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int period))
+        {
+            selectedPeriod = period;
+            await LoadAvailableRoomsAsync();
+        }
+    }
+
+    private void ResetToCurrentTime()
+    {
+        var now = DateTime.Now;
+
+        string dayStr = now.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")).Substring(0, 1);
+        if (dayStr == "土" || dayStr == "日") dayStr = "月";
+        selectedDay = dayStr;
+
+        var nowTime = now.TimeOfDay;
+        if (nowTime >= new TimeSpan(8, 50, 0) && nowTime <= new TimeSpan(10, 20, 0)) selectedPeriod = 1;
+        else if (nowTime >= new TimeSpan(10, 30, 0) && nowTime <= new TimeSpan(12, 0, 0)) selectedPeriod = 2;
+        else if (nowTime >= new TimeSpan(12, 50, 0) && nowTime <= new TimeSpan(14, 20, 0)) selectedPeriod = 3;
+        else if (nowTime >= new TimeSpan(14, 30, 0) && nowTime <= new TimeSpan(16, 0, 0)) selectedPeriod = 4;
+        else if (nowTime >= new TimeSpan(16, 10, 0) && nowTime <= new TimeSpan(17, 40, 0)) selectedPeriod = 5;
+        else selectedPeriod = 1;
+
+        _ = LoadAvailableRoomsAsync();
+    }
+}

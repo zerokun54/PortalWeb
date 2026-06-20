@@ -1,0 +1,121 @@
+﻿@page "/home"
+@inject HttpClient Http
+@using System.Timers
+
+<div class="container p-3" style="color: white; background-color: rgba(0,0,0,0.7); border-radius: 8px;">
+
+    <div class="mb-3 d-flex align-items-center">
+        <label class="me-2 fw-bold">表示学期：</label>
+        <select class="form-select w-auto" @onchange="OnSemesterChanged">
+            <option value="1_zenki">1前期</option>
+            <option value="1_kouki">1後期</option>
+        </select>
+    </div>
+
+    <div class="card bg-dark border-secondary mb-3 text-white p-3">
+        <div class="d-flex justify-content-between align-content-center">
+            <h4 class="m-0">📅 今日の時間割 (@currentDayOfWeek 曜日)</h4>
+            <span class="badge bg-primary fs-6">@currentPeriodText</span>
+        </div>
+        <div class="mt-2 text-muted small">
+            現在の時刻: @currentTimeText
+        </div>
+    </div>
+
+    <div class="list-group mb-4">
+        @if (todaySchedules == null || !todaySchedules.Any())
+        {
+            <div class="list-group-item bg-dark text-muted text-center border-secondary">
+                本日の授業はありません。
+            </div>
+        }
+        else
+        {
+            @foreach (var item in todaySchedules)
+            {
+                <div class="list-group-item bg-dark text-white border-secondary d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-secondary me-3" style="width: 40px;">@item.Period 限</span>
+                        <div>
+                            <button class="btn btn-link text-info p-0 text-start fw-bold" @onclick="() => OnSubjectClick(item)">
+                                @item.SubjectName
+                            </button>
+                            <div class="small text-muted">@item.TeacherName / @item.RoomName</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<MyScheduleItem> todaySchedules = new List<MyScheduleItem>();
+    private string currentDayOfWeek = "";
+    private string currentTimeText = "";
+    private string currentPeriodText = "時間外";
+    private Timer? timer;
+    private string currentSemester = "1_zenki";
+
+    protected override async Task OnInitializedAsync()
+    {
+        UpdateTimeInfo();
+        await LoadDataAsync();
+
+        // 1秒ごとに時計と現在の時限を更新するタイマー
+        timer = new Timer(1000);
+        timer.Elapsed += (sender, e) =>
+        {
+            InvokeAsync(() =>
+            {
+                UpdateTimeInfo();
+                StateHasChanged(); // 画面再描画
+            });
+        };
+        timer.Start();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        var loader = new PortalWeb.CsvLoader(Http);
+        // wwwroot/data/my_schedule.csv から取得する想定
+        var allList = await loader.LoadMyScheduleFromCsvAsync($"data/{currentSemester}/my_schedule.csv");
+
+        // 今日の曜日のデータだけフィルタリング
+        todaySchedules = allList.Where(x => x.DayOfWeek == currentDayOfWeek).OrderBy(x => x.Period).ToList();
+    }
+
+    private void UpdateTimeInfo()
+    {
+        var now = DateTime.Now;
+        currentTimeText = now.ToString("HH:mm:ss");
+        currentDayOfWeek = now.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")).Substring(0, 1);
+        if (currentDayOfWeek == "土" || currentDayOfWeek == "日") currentDayOfWeek = "月"; // デスクトップ版の仕様を再現
+
+        // 現在の時限判定ロジック
+        var nowTime = now.TimeOfDay;
+        if (nowTime >= new TimeSpan(8, 50, 0) && nowTime <= new TimeSpan(10, 20, 0)) currentPeriodText = "現在 1限目";
+        else if (nowTime >= new TimeSpan(10, 30, 0) && nowTime <= new TimeSpan(12, 0, 0)) currentPeriodText = "現在 2限目";
+        else if (nowTime >= new TimeSpan(12, 50, 0) && nowTime <= new TimeSpan(14, 20, 0)) currentPeriodText = "現在 3限目";
+        else if (nowTime >= new TimeSpan(14, 30, 0) && nowTime <= new TimeSpan(16, 0, 0)) currentPeriodText = "現在 4限目";
+        else if (nowTime >= new TimeSpan(16, 10, 0) && nowTime <= new TimeSpan(17, 40, 0)) currentPeriodText = "現在 5限目";
+        else currentPeriodText = "時間外";
+    }
+
+    private async Task OnSemesterChanged(ChangeEventArgs e)
+    {
+        currentSemester = e.Value?.ToString() ?? "1_zenki";
+        await LoadDataAsync();
+    }
+
+    private void OnSubjectClick(MyScheduleItem item)
+    {
+        // ここにシラバスダイアログ（モーダル表示）の処理を入れます
+        Console.WriteLine($"シラバス確認: {item.SubjectName}");
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

@@ -1,0 +1,317 @@
+﻿@page "/"
+@inject HttpClient Http
+@using System.Timers
+
+<div class="container p-3" style="color: white; background-color: rgba(0,0,0,0.7); border-radius: 8px;">
+    <div class="mb-3 d-flex align-items-center">
+        <label class="me-2 fw-bold">表示学期：</label>
+        <select class="form-select w-auto" @onchange="OnSemesterChanged">
+            <option value="1_zenki">1前期</option>
+            <option value="1_kouki">1後期</option>
+        </select>
+    </div>
+
+    <div class="card bg-dark border-secondary mb-3 text-white p-3">
+        <div class="d-flex justify-content-between align-content-center">
+            <h4 class="m-0">📅 今日の時間割 (@currentDayOfWeek 曜日)</h4>
+            <span class="badge bg-primary fs-6">@currentPeriodText</span>
+        </div>
+
+        <div class="mt-2 text-white fw-bold fs-4">
+            現在の時刻: @currentTimeText
+        </div>
+    </div>
+
+    <div class="list-group mb-4">
+        @if (todaySchedules == null || !todaySchedules.Any())
+        {
+            <div class="list-group-item bg-dark text-muted text-center border-secondary">本日の授業はありません。</div>
+        }
+        else
+        {
+            @foreach (var item in todaySchedules)
+            {
+                <div class="list-group-item bg-dark text-white border-secondary d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <span class="badge bg-secondary me-3" style="width: 60px;">@item.Period 限</span>
+
+                        <div class="flex-grow-1">
+                            <button class="btn btn-link p-0 fw-bold text-info text-start border-0 text-decoration-underline"
+                                    style="font-size: 1.1rem; cursor: pointer;"
+                                    @onclick="() => OnSubjectClick(item)">
+                                @item.SubjectName
+                            </button>
+
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="text-white small px-2 py-1 bg-dark border border-secondary rounded">
+                                    👤 @item.TeacherName
+                                </span>
+                                <span class="text-white small px-2 py-1 bg-dark border border-secondary rounded">
+                                    🚪 @item.RoomName
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="card bg-dark border-secondary mt-4">
+        <div class="card-header bg-secondary text-dark fw-bold">🚪 現在の空き教室状況</div>
+        <div class="card-body">
+            @if (isLoadingRooms)
+            {
+                <div class="spinner-border text-light spinner-border-sm" role="status"></div>
+            }
+            else if (currentAvailableRooms == null || !currentAvailableRooms.Any())
+            {
+                <p class="text-muted small m-0">現在空いている教室はありません。</p>
+            }
+            else
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var room in currentAvailableRooms)
+                    {
+                        <span class="badge bg-secondary border border-light">@room</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="text-center text-white-50 mt-5 mb-2" style="font-size: 0.8rem; letter-spacing: 1px;">
+        <span class="badge bg-secondary text-dark fw-bold me-1">ver 1.0</span>
+        © 2026 portalWeb All Rights Reserved.
+    </div>
+</div>
+
+@if (showSyllabusModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content bg-dark text-white border-secondary">
+
+                <div class="modal-header border-secondary bg-secondary text-dark">
+                    <h5 class="modal-title fw-bold">📚 シラバス確認 : @selectedSubjectName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseSyllabusModal"></button>
+                </div>
+
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    @if (isLoadingSyllabus)
+                    {
+                        <div class="text-center p-5">
+                            <div class="spinner-border text-light" role="status"></div>
+                            <div class="mt-2 small text-muted">シラバスデータを読み込み中...</div>
+                        </div>
+                    }
+                    else if (syllabusLines == null || !syllabusLines.Any())
+                    {
+                        <div class="text-center text-muted p-5">
+                            ⚠️ シラバスデータ（ファイル名: @(selectedSubjectName).csv）が見つかりません。
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-header border-secondary fw-bold text-info">
+                                        📊 評価基準
+                                    </div>
+                                    <div class="card-body p-2">
+                                        @{
+                                            var evalItems = syllabusLines.Where(x => x.Type == "評価基準").ToList();
+                                        }
+                                        @if (!evalItems.Any())
+                                        {
+                                            <p class="text-muted small m-2">登録なし</p>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex flex-column gap-2">
+                                                @foreach (var line in evalItems)
+                                                {
+                                                    <div class="p-2 border border-secondary rounded" style="background-color: rgba(255,255,255,0.05); font-size: 0.85rem;">
+                                                        <div class="row g-1 align-items-center">
+                                                            <div class="col-5 fw-bold text-info border-end border-secondary pe-1 text-truncate">
+                                                                ● @line.ItemName
+                                                            </div>
+                                                            <div class="col-7 ps-2 text-white" style="white-space: pre-wrap; word-break: break-all;">
+                                                                @line.Content
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-8">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-header border-secondary fw-bold text-success">
+                                        📅 各回の授業計画
+                                    </div>
+                                    <div class="card-body p-2">
+                                        @{
+                                            var planItems = syllabusLines.Where(x => x.Type == "授業計画").ToList();
+                                        }
+                                        @if (!planItems.Any())
+                                        {
+                                            <p class="text-muted small m-2">登録なし</p>
+                                        }
+                                        else
+                                        {
+                                            <table class="table table-dark table-striped table-sm m-0" style="font-size: 0.9rem;">
+                                                <thead>
+                                                    <tr class="text-muted" style="font-size: 0.8rem;">
+                                                        <th style="width: 20%;">回数</th>
+                                                        <th>学習内容</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var line in planItems)
+                                                    {
+                                                        <tr>
+                                                            <td class="fw-bold text-warning">@line.ItemName</td>
+                                                            <td style="white-space: pre-wrap;">@line.Content</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary text-dark fw-bold" @onclick="CloseSyllabusModal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<PortalWeb.MyScheduleItem> todaySchedules = new List<PortalWeb.MyScheduleItem>();
+    private List<string> currentAvailableRooms = new List<string>();
+    private string currentDayOfWeek = "";
+    private string currentTimeText = "";
+    private string currentPeriodText = "時間外";
+    private int currentPeriodInt = -1;
+    private string currentSemester = "1_zenki";
+    private bool isLoadingRooms = false;
+    private System.Timers.Timer? timer;
+    private int lastPeriod = -99;
+    private string lastDay = string.Empty;
+
+    // シラバス用制御変数
+    private bool showSyllabusModal = false;
+    private bool isLoadingSyllabus = false;
+    private string selectedSubjectName = "";
+    private List<PortalWeb.SyllabusLine> syllabusLines = new List<PortalWeb.SyllabusLine>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UpdateTimeInfo();
+        await LoadScheduleDataAsync();
+        await UpdateAvailableRoomsAsync();
+
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += async (sender, e) =>
+        {
+            await InvokeAsync(async () =>
+            {
+                UpdateTimeInfo();
+                if (currentDayOfWeek != lastDay || currentPeriodInt != lastPeriod)
+                {
+                    lastDay = currentDayOfWeek;
+                    lastPeriod = currentPeriodInt;
+                    await LoadScheduleDataAsync();
+                    await UpdateAvailableRoomsAsync();
+                }
+                StateHasChanged();
+            });
+        };
+        timer.Start();
+    }
+
+    private async Task LoadScheduleDataAsync()
+    {
+        var loader = new PortalWeb.CsvLoader(Http);
+        var allList = await loader.LoadMyScheduleFromCsvAsync($"data/{currentSemester}/my_schedule.csv");
+        todaySchedules = allList.Where(x => x.DayOfWeek == currentDayOfWeek).OrderBy(x => x.Period).ToList();
+    }
+
+    private async Task UpdateAvailableRoomsAsync()
+    {
+        isLoadingRooms = true;
+        try
+        {
+            var loader = new PortalWeb.CsvLoader(Http);
+            currentAvailableRooms = await loader.LoadAvailableRoomsFromCsvAsync(currentSemester, currentDayOfWeek, currentPeriodInt == -1 ? 1 : currentPeriodInt);
+        }
+        finally
+        {
+            isLoadingRooms = false;
+        }
+    }
+
+    private void UpdateTimeInfo()
+    {
+        var now = DateTime.Now;
+        currentTimeText = now.ToString("HH:mm:ss");
+        currentDayOfWeek = now.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")).Substring(0, 1);
+        if (currentDayOfWeek == "土" || currentDayOfWeek == "日") currentDayOfWeek = "月";
+
+        var t = now.TimeOfDay;
+        if (t >= new TimeSpan(8, 50, 0) && t <= new TimeSpan(10, 20, 0)) { currentPeriodText = "現在 1限目"; currentPeriodInt = 1; }
+        else if (t >= new TimeSpan(10, 30, 0) && t <= new TimeSpan(12, 0, 0)) { currentPeriodText = "現在 2限目"; currentPeriodInt = 2; }
+        else if (t >= new TimeSpan(12, 50, 0) && t <= new TimeSpan(14, 20, 0)) { currentPeriodText = "現在 3限目"; currentPeriodInt = 3; }
+        else if (t >= new TimeSpan(14, 30, 0) && t <= new TimeSpan(16, 0, 0)) { currentPeriodText = "現在 4限目"; currentPeriodInt = 4; }
+        else if (t >= new TimeSpan(16, 10, 0) && t <= new TimeSpan(17, 40, 0)) { currentPeriodText = "現在 5限目"; currentPeriodInt = 5; }
+        else { currentPeriodText = "時間外"; currentPeriodInt = -1; }
+    }
+
+    private async Task OnSemesterChanged(ChangeEventArgs e)
+    {
+        currentSemester = e.Value?.ToString() ?? "1_zenki";
+        await LoadScheduleDataAsync();
+        await UpdateAvailableRoomsAsync();
+    }
+
+    // 教科クリックでシラバスを読込
+    private async Task OnSubjectClick(PortalWeb.MyScheduleItem item)
+    {
+        selectedSubjectName = item.SubjectName;
+        showSyllabusModal = true;
+        isLoadingSyllabus = true;
+        StateHasChanged();
+
+        try
+        {
+            var loader = new PortalWeb.CsvLoader(Http);
+            syllabusLines = await loader.LoadSyllabusFromCsvAsync(currentSemester, item.SubjectName);
+        }
+        catch
+        {
+            syllabusLines = new List<PortalWeb.SyllabusLine>();
+        }
+        finally
+        {
+            isLoadingSyllabus = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseSyllabusModal()
+    {
+        showSyllabusModal = false;
+    }
+
+    public void Dispose() => timer?.Dispose();
+}

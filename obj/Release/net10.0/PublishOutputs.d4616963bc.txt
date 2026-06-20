@@ -1,0 +1,7 @@
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\CsvLoader.cs
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\MyScheduleItem.cs
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\Program.cs
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\wwwroot\index.html
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\PortalWeb.runtimeconfig.json
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\dotnet.js
+C:\Users\reikun\Desktop\VStudio\PortalWeb\PortalWeb\publish\web.config

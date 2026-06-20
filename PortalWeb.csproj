@@ -1,0 +1,170 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="publish\**" />
+    <Content Remove="publish\**" />
+    <EmbeddedResource Remove="publish\**" />
+    <None Remove="publish\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\data\1_zenki\my_schedule.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\演習室1.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\演習室3.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\演習室5.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\演習室6.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\端末室1.csv" />
+    <None Include="wwwroot\data\1_zenki\rooms\端末室2.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\PBL1.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\コンピュータリテラシ.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\バレーボール.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\プログラミング1.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\多文化社会への招待C.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\微分積分1.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\情報社会の法と倫理.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\線形代数1.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\英語1A.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\英語1B.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\論理回路論.csv" />
+    <None Include="wwwroot\data\1_zenki\syllabus\離散数学1.csv" />
+    <None Include="wwwroot\data\2026_2nd\my_schedule.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\演習室1.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\演習室3.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\演習室5.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\演習室6.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\端末室1.csv" />
+    <None Include="wwwroot\data\2026_2nd\rooms\端末室2.csv" />
+    <None Include="wwwroot\data\2027_1st\my_schedule.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\演習室1.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\演習室3.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\演習室5.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\演習室6.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\端末室1.csv" />
+    <None Include="wwwroot\data\2027_1st\rooms\端末室2.csv" />
+    <None Include="wwwroot\data\template\my_schedule.csv" />
+    <None Include="wwwroot\data\template\rooms\演習室1.csv" />
+    <None Include="wwwroot\data\template\rooms\演習室3.csv" />
+    <None Include="wwwroot\data\template\rooms\演習室5.csv" />
+    <None Include="wwwroot\data\template\rooms\演習室6.csv" />
+    <None Include="wwwroot\data\template\rooms\端末室1.csv" />
+    <None Include="wwwroot\data\template\rooms\端末室2.csv" />
+    <None Include="wwwroot\data\template\syllabus.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.9" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CsvLoader.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="MyScheduleItem.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Program.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="App.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Layout\MainLayout.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Layout\NavMenu.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Pages\AllSchedule.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Pages\AvailableRooms.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Pages\Home.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Pages\HomePage.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Pages\NotFound.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\my_schedule.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\演習室1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\演習室3.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\演習室5.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\演習室6.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\端末室1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\rooms\端末室2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\PBL1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\コンピュータリテラシ.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\バレーボール.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\プログラミング1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\多文化社会への招待C.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\微分積分1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\情報社会の法と倫理.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\線形代数1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\英語1A.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\英語1B.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\論理回路論.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\1_zenki\syllabus\離散数学1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="_Imports.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
