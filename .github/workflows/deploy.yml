@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ] # mainブランチにプッシュされたら自動起動
 
+# 🚨 これが足りていなかったため、GitHub側で「書き込み権限がない！」とActionsが怒って止まっていました
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,7 +18,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' # あなたの.NETのバージョンに合わせて自動ビルドします
+        dotnet-version: '8.0.x'
 
     - name: Publish Blazor App
       run: dotnet publish -c Release --output release
@@ -32,5 +36,5 @@ jobs:
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
-        folder: release/wwwroot # ビルドされた「本物の成果物」だけを別ブランチに自動送信
-        branch: gh-pages # 自動公開用の専用ブランチを自動作成してくれます
+        folder: release/wwwroot
+        branch: gh-pages
