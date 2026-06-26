@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PortalWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+60b9ed3f7afac0bc9c1785c2fd3d668b910b2627")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9f1150418ecb4d18fcfcd69609ce317124dfec8a")]
 [assembly: System.Reflection.AssemblyProductAttribute("PortalWeb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PortalWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
